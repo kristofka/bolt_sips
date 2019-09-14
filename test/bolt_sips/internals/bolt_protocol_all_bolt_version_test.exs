@@ -1,7 +1,31 @@
 defmodule Bolt.Sips.Internals.BoltProtocolAllBoltVersionTest do
-  use Bolt.Sips.InternalCase
+  use ExUnit.Case, async: false
   alias Bolt.Sips.Internals.BoltProtocol
 
+  alias Bolt.Sips.Internals.BoltProtocol
+  setup do
+    app_config = Application.get_env(:bolt_sips, Bolt)
+
+    port = Keyword.get(app_config, :port, 7687)
+    auth = {app_config[:basic_auth][:username], app_config[:basic_auth][:password]}
+
+    config =
+      app_config
+      |> Keyword.put(:port, port)
+      |> Keyword.put(:auth, auth)
+
+    {:ok, port} =
+      :gen_tcp.connect(config[:url], config[:port], active: false, mode: :binary, packet: :raw)
+
+    {:ok, bolt_version} = BoltProtocol.handshake(:gen_tcp, port, [])
+    {:ok, _} = BoltProtocol.hello(:gen_tcp, port, bolt_version, auth)
+
+    on_exit(fn ->
+      :gen_tcp.close(port)
+    end)
+
+    {:ok, config: config, port: port, bolt_version: bolt_version}
+  end
   test "works for small queries", %{port: port, bolt_version: bolt_version} do
     string = Enum.to_list(0..100) |> Enum.join()
 
@@ -28,7 +52,6 @@ defmodule Bolt.Sips.Internals.BoltProtocolAllBoltVersionTest do
 
     [{:success, _} | records] =
       BoltProtocol.run_statement(:gen_tcp, port, bolt_version, query, params)
-
     assert [record: [^string], success: _] = records
   end
 

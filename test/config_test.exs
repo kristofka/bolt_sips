@@ -25,7 +25,7 @@ defmodule Config.Test do
 
   @basic_config [
     hostname: 'hobby',
-    basic_auth: [username: "neo4j", password: "neo4j"],
+    basic_auth: [username: "neo4j", password: "gyul3a"],
     port: 1234,
     pool_size: 15,
     max_overflow: 3
@@ -54,7 +54,7 @@ defmodule Config.Test do
 
     assert config[:url] == nil
     assert config[:hostname] == 'hobby'
-    assert config[:basic_auth] == [username: "neo4j", password: "neo4j"]
+    assert config[:basic_auth] == [username: "neo4j", password: "gyul3a"]
     assert config[:port] == 1234
     assert config[:ssl] == false
   end
