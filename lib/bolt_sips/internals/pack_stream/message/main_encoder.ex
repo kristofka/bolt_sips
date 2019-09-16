@@ -165,7 +165,7 @@ defmodule Bolt.Sips.Internals.PackStream.Message.MainEncoder do
   @doc """
   Encode RUN without params nor metadata
   """
-  def encode({:run, [statement]}, bolt_version) do
+  def encode({:run, [statement]}, bolt_version)  do
     do_encode(:run, [statement, %{}, %{}], bolt_version)
   end
 
@@ -417,6 +417,14 @@ defmodule Bolt.Sips.Internals.PackStream.Message.MainEncoder do
           integer()
         ) ::
           Bolt.Sips.Internals.PackStream.Message.encoded()
+  def encode_message(message_type, @run_signature, [stmt, params, meta] = data, bolt_version) when is_list(stmt) do
+    #stmt has been pre_encoded at compile time and is an io_list
+    Bolt.Sips.Internals.Logger.log_message(:client, message_type, data)
+    encoded = {@run_signature, data}
+      |> Bolt.Sips.Internals.PackStream.pre_encoded(bolt_version)
+      |> generate_chunks([])
+
+  end
   def encode_message(message_type, signature, data, bolt_version) do
     Bolt.Sips.Internals.Logger.log_message(:client, message_type, data)
 
@@ -446,11 +454,12 @@ defmodule Bolt.Sips.Internals.PackStream.Message.MainEncoder do
       true ->  bindata = :erlang.iolist_to_binary(data)
                <<chunk::binary-@max_chunk_size, rest::binary>> = bindata
                new_chunk = format_chunk(chunk)
-               [new_chunk, generate_chunks(rest,[])]
+               #[new_chunk, generate_chunks(rest,[])]
+               generate_chunks(rest, [chunks, new_chunk])
       #generate_chunks(<<rest>>, [new_chunk, chunks])
 
       _ ->
-        generate_chunks(<<>>, [format_chunk(data) , chunks])
+        generate_chunks(<<>>, [ chunks,format_chunk(data)])
     end
 
   end

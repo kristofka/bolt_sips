@@ -368,6 +368,10 @@ defmodule Bolt.Sips.Internals.PackStream.MainEncoder do
     [<<@struct16_marker::8, length(list)::16, signature>> , encode_list_data(list, bolt_version)]
   end
 
+  def pre_encoded_struct( {signature, [first | rest] = list}, bolt_version) do
+    [ <<@tiny_struct_marker::4, length(list)::4, signature>> ,first, encode_list_data(rest, bolt_version)]
+  end
+
   @doc """
   Encode a Time (represented by Time) into Bolt binary format.
   Encoded in a structure.

@@ -28,6 +28,8 @@ defmodule Query.Test do
       LIMIT 5
     """
 
+
+
     {:ok, row} = Bolt.Sips.query(conn, cyp)
 
     assert List.first(row)["Name"] == "Patrick Rothfuss",

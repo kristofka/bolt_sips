@@ -21,6 +21,7 @@ defprotocol Bolt.Sips.Internals.PackStream.Encoder do
 
   @spec encode(any(), integer()) :: binary()
   def encode(entity, bolt_version)
+  def pre_encoded(entity, bolt_version)
 end
 
 defimpl PackStream.Encoder, for: Atom do
@@ -102,6 +103,21 @@ defimpl PackStream.Encoder, for: Any do
         message: "Unable to encode",
         data: data,
         bolt_version: bolt_version
+    end
+  end
+
+  def pre_encoded({signature, data}, bolt_version) do
+    valid_signatures =
+      PackStream.Message.Encoder.valid_signatures(bolt_version) ++
+      Bolt.Sips.Internals.PackStream.MarkersHelper.valid_signatures()
+
+    if signature in valid_signatures do
+      MainEncoder.pre_encoded_struct( {signature, data}, bolt_version)
+    else
+      raise Bolt.Sips.Internals.PackStreamError,
+            message: "Unable to encode",
+            data: data,
+            bolt_version: bolt_version
     end
   end
 
