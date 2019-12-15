@@ -2,6 +2,7 @@ use Mix.Config
 
 config :bolt_sips, Bolt,
   # default port considered to be: 7687
+
   url: "bolt://localhost",
   basic_auth: [username: "neo4j", password: "test"],
   pool_size: 10,
@@ -10,6 +11,7 @@ config :bolt_sips, Bolt,
   queue_target: 1500,
   retry_linear_backoff: [delay: 150, factor: 2, tries: 2],
   prefix: :default
+
 
 # the `retry_linear_backoff` values above are also the default driver values,
 # re-defined here mostly as a reminder

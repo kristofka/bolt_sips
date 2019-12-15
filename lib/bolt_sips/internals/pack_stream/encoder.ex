@@ -1,5 +1,6 @@
 alias Bolt.Sips.Internals.PackStream
 alias Bolt.Sips.Internals.PackStream.EncoderHelper
+alias Bolt.Sips.Internals.PackStream.MainEncoder
 
 defprotocol Bolt.Sips.Internals.PackStream.Encoder do
   @moduledoc false
@@ -20,70 +21,71 @@ defprotocol Bolt.Sips.Internals.PackStream.Encoder do
 
   @spec encode(any(), integer()) :: binary()
   def encode(entity, bolt_version)
+  def pre_encoded(entity, bolt_version)
 end
 
 defimpl PackStream.Encoder, for: Atom do
-  def encode(data, bolt_version), do: EncoderHelper.call_encode(:atom, data, bolt_version)
+  def encode(data, bolt_version), do: MainEncoder.encode_atom( data, bolt_version)
 end
 
 defimpl PackStream.Encoder, for: BitString do
-  def encode(data, bolt_version), do: EncoderHelper.call_encode(:string, data, bolt_version)
+  def encode(data, bolt_version), do: MainEncoder.encode_string( data, bolt_version)
 end
 
 defimpl PackStream.Encoder, for: Integer do
-  def encode(data, bolt_version), do: EncoderHelper.call_encode(:integer, data, bolt_version)
+  def encode(data, bolt_version), do:  MainEncoder.encode_integer( data, bolt_version)
 end
 
 defimpl PackStream.Encoder, for: Float do
-  def encode(data, bolt_version), do: EncoderHelper.call_encode(:float, data, bolt_version)
+  def encode(data, bolt_version), do:  MainEncoder.encode_float( data, bolt_version)
 end
 
 defimpl PackStream.Encoder, for: List do
-  def encode(data, bolt_version), do: EncoderHelper.call_encode(:list, data, bolt_version)
+  def encode(data, bolt_version), do:  MainEncoder.encode_list(data, bolt_version)
 end
 
 defimpl PackStream.Encoder, for: Map do
-  def encode(data, bolt_version), do: EncoderHelper.call_encode(:map, data, bolt_version)
+  def encode(data, bolt_version), do:  MainEncoder.encode_map( data, bolt_version)
 end
 
 defimpl PackStream.Encoder, for: Time do
-  def encode(data, bolt_version), do: EncoderHelper.call_encode(:local_time, data, bolt_version)
+  def encode(data, bolt_version), do:  MainEncoder.encode_local_time( data, bolt_version)
 end
 
 defimpl PackStream.Encoder, for: Bolt.Sips.Types.TimeWithTZOffset do
   def encode(data, bolt_version) do
-    EncoderHelper.call_encode(:time_with_tz, data, bolt_version)
+    MainEncoder.encode_time_with_tz( data, bolt_version)
   end
 end
 
 defimpl PackStream.Encoder, for: Date do
-  def encode(data, bolt_version), do: EncoderHelper.call_encode(:date, data, bolt_version)
+  def encode(data, bolt_version), do: MainEncoder.encode_date( data, bolt_version)
 end
 
 defimpl PackStream.Encoder, for: NaiveDateTime do
   def encode(data, bolt_version) do
-    EncoderHelper.call_encode(:local_datetime, data, bolt_version)
+    MainEncoder.encode_local_datetime( data, bolt_version)
   end
 end
 
 defimpl PackStream.Encoder, for: DateTime do
   def encode(data, version) do
-    EncoderHelper.call_encode(:datetime_with_tz_id, data, version)
+    MainEncoder.encode_datetime_with_tz_id( data, version)
   end
 end
 
 defimpl PackStream.Encoder, for: Bolt.Sips.Types.DateTimeWithTZOffset do
   def encode(data, version) do
-    EncoderHelper.call_encode(:datetime_with_tz_offset, data, version)
+    MainEncoder.encode_datetime_with_tz_offset( data, version)
   end
 end
 
 defimpl PackStream.Encoder, for: Bolt.Sips.Types.Duration do
-  def encode(data, version), do: EncoderHelper.call_encode(:duration, data, version)
+  def encode(data, version), do: MainEncoder.encode_duration( data, version)
 end
 
 defimpl PackStream.Encoder, for: Bolt.Sips.Types.Point do
-  def encode(data, version), do: EncoderHelper.call_encode(:point, data, version)
+  def encode(data, version), do: MainEncoder.encode_point( data, version)
 end
 
 defimpl PackStream.Encoder, for: Any do
@@ -95,12 +97,27 @@ defimpl PackStream.Encoder, for: Any do
         Bolt.Sips.Internals.PackStream.MarkersHelper.valid_signatures()
 
     if signature in valid_signatures do
-      EncoderHelper.call_encode(:struct, {signature, data}, bolt_version)
+      MainEncoder.encode_struct( {signature, data}, bolt_version)
     else
       raise Bolt.Sips.Internals.PackStreamError,
         message: "Unable to encode",
         data: data,
         bolt_version: bolt_version
+    end
+  end
+
+  def pre_encoded({signature, data}, bolt_version) do
+    valid_signatures =
+      PackStream.Message.Encoder.valid_signatures(bolt_version) ++
+      Bolt.Sips.Internals.PackStream.MarkersHelper.valid_signatures()
+
+    if signature in valid_signatures do
+      MainEncoder.pre_encoded_struct( {signature, data}, bolt_version)
+    else
+      raise Bolt.Sips.Internals.PackStreamError,
+            message: "Unable to encode",
+            data: data,
+            bolt_version: bolt_version
     end
   end
 

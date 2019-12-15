@@ -29,7 +29,9 @@ defmodule Query.Test do
       LIMIT 5
     """
 
+
     {:ok, %Response{} = row} = Bolt.Sips.query(conn, cyp)
+
 
     assert Response.first(row)["Name"] == "Patrick Rothfuss",
            "missing 'The Name of the Wind' database, or data incomplete"

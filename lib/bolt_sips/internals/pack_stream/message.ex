@@ -6,8 +6,9 @@ defmodule Bolt.Sips.Internals.PackStream.Message do
   # Message encoding / decoding is the first step of encoding / decoding.
   # The next step is the message data encoding /decoding (which is handled by packstream.ex)
 
-  alias Bolt.Sips.Internals.PackStream.Message.Encoder
+ # alias Bolt.Sips.Internals.PackStream.Message.Encoder
   alias Bolt.Sips.Internals.PackStream.Message.Decoder
+  alias Bolt.Sips.Internals.PackStream.Message.MainEncoder
 
   @type in_signature :: :failure | :ignored | :record | :success
   @type out_signature ::
@@ -32,7 +33,7 @@ defmodule Bolt.Sips.Internals.PackStream.Message do
   @spec encode({Bolt.Sips.Internals.PackStream.Message.out_signature(), list()}, integer()) ::
           Bolt.Sips.Internals.PackStream.Message.encoded()
   def encode(message, bolt_version) do
-    Encoder.encode(message, bolt_version)
+   MainEncoder.encode(message, bolt_version)
   end
 
   @doc """

@@ -1,18 +1,19 @@
-defmodule Bolt.Sips.Internals.PackStream.Message.EncoderV3Test do
+defmodule Bolt.Sips.Internals.PackStream.Message.MainEncoderTest do
   use ExUnit.Case, async: true
 
-  doctest Bolt.Sips.Internals.PackStream.Message.EncoderV3
+  doctest Bolt.Sips.Internals.PackStream.Message.MainEncoder
 
-  alias Bolt.Sips.Internals.PackStream.Message.EncoderV3
+  alias Bolt.Sips.Internals.PackStream.Message.MainEncoder
   alias Bolt.Sips.Metadata
 
   describe "Encode BEGIN" do
     test "without params" do
-      assert <<0x0, 0x3, 0xB1, 0x11, 0xA0, 0x0, 0x0>> == EncoderV3.encode({:begin, []}, 3)
+      bdata = :erlang.iolist_to_binary(MainEncoder.encode({:begin, []}, 3))
+      assert <<0x0, 0x3, 0xB1, 0x11, 0xA0, 0x0, 0x0>> == bdata
     end
 
     test "with empty params" do
-      assert <<0x0, 0x3, 0xB1, 0x11, 0xA0, 0x0, 0x0>> == EncoderV3.encode({:begin, [%{}]}, 3)
+      assert <<0x0, 0x3, 0xB1, 0x11, 0xA0, 0x0, 0x0>> == :erlang.iolist_to_binary(MainEncoder.encode({:begin, [%{}]}, 3))
     end
 
     test "with params" do
@@ -20,41 +21,41 @@ defmodule Bolt.Sips.Internals.PackStream.Message.EncoderV3Test do
 
       assert <<0x0, 0x11, 0xB1, 0x11, 0xA1, 0x8A, 0x74, 0x78, 0x5F, 0x74, 0x69, 0x6D, 0x65, 0x6F,
                0x75, 0x74, 0xC9, 0x13, 0x88, 0x0,
-               0x0>> == EncoderV3.encode({:begin, [metadata]}, 3)
+               0x0>> == :erlang.iolist_to_binary(MainEncoder.encode({:begin, [metadata]}, 3))
     end
 
     test "fails with non-metadata params" do
-      assert {:error, _} = EncoderV3.encode({:begin, [%{tx_timeout: 5000}]}, 3)
+      assert {:error, _} = MainEncoder.encode({:begin, [%{tx_timeout: 5000}]}, 3)
     end
   end
 
   test "Encode COMMIT" do
-    assert <<0x0, 0x2, 0xB0, 0x12, 0x0, 0x0>> == EncoderV3.encode({:commit, []}, 3)
+    assert <<0x0, 0x2, 0xB0, 0x12, 0x0, 0x0>> == :erlang.iolist_to_binary(MainEncoder.encode({:commit, []}, 3))
   end
 
   test "Encode GOODBYE" do
-    assert assert <<0x0, 0x2, 0xB0, 0x02, 0x0, 0x0>> == EncoderV3.encode({:goodbye, []}, 3)
+    assert assert <<0x0, 0x2, 0xB0, 0x02, 0x0, 0x0>> == :erlang.iolist_to_binary(MainEncoder.encode({:goodbye, []}, 3))
   end
 
   describe "Encode HELLO" do
     test "without params" do
-      assert <<0x0, _, 0xB1, 0x1, _::binary>> = EncoderV3.encode({:hello, []}, 3)
+      assert <<0x0, _, 0xB1, 0x1, _::binary>> = :erlang.iolist_to_binary(MainEncoder.encode({:hello, []}, 3))
     end
 
     test "with params" do
-      assert <<0x0, _, 0xB1, 0x1, _::binary>> = EncoderV3.encode({:hello, [{"neo4j", "test"}]}, 3)
+      assert <<0x0, _, 0xB1, 0x1, _::binary>> = :erlang.iolist_to_binary(MainEncoder.encode({:hello, [{"neo4j", "test"}]}, 3))
     end
   end
 
   test "Encode ROLLBACK" do
-    assert <<0x0, 0x2, 0xB0, 0x13, 0x0, 0x0>> == EncoderV3.encode({:rollback, []}, 3)
+    assert <<0x0, 0x2, 0xB0, 0x13, 0x0, 0x0>> == :erlang.iolist_to_binary(MainEncoder.encode({:rollback, []}, 3))
   end
 
   describe "Encode RUN" do
     test "without params nor metadata" do
       assert <<0x0, 0x14, 0xB3, 0x10, 0x8F, 0x52, 0x45, 0x54, 0x55, 0x52, 0x4E, 0x20, 0x31, 0x20,
                0x41, 0x53, 0x20, 0x6E, 0x75, 0x6D, 0xA0, 0xA0, 0x0,
-               0x0>> == EncoderV3.encode({:run, ["RETURN 1 AS num"]}, 3)
+               0x0>> == :erlang.iolist_to_binary(MainEncoder.encode({:run, ["RETURN 1 AS num"]}, 3))
     end
 
     test "without params but with metadata" do
@@ -64,7 +65,7 @@ defmodule Bolt.Sips.Internals.PackStream.Message.EncoderV3Test do
                0x41, 0x53, 0x20, 0x6E, 0x75, 0x6D, 0xA0, 0xA1, 0x8A, 0x74, 0x78, 0x5F, 0x74, 0x69,
                0x6D, 0x65, 0x6F, 0x75, 0x74, 0xC9, 0x13, 0x88, 0x0,
                0x0>> ==
-               EncoderV3.encode({:run, ["RETURN 1 AS num", %{}, metadata]}, 3)
+               :erlang.iolist_to_binary(MainEncoder.encode({:run, ["RETURN 1 AS num", %{}, metadata]}, 3))
     end
 
     test "with params but without metadata" do
@@ -72,7 +73,7 @@ defmodule Bolt.Sips.Internals.PackStream.Message.EncoderV3Test do
                0x6E, 0x75, 0x6D, 0x7D, 0x20, 0x41, 0x53, 0x20, 0x6E, 0x75, 0x6D, 0xA1, 0x83, 0x6E,
                0x75, 0x6D, 0x5, 0xA0, 0x0,
                0x0>> ==
-               EncoderV3.encode({:run, ["RETURN {num} AS num", %{num: 5}]}, 3)
+                  :erlang.iolist_to_binary(MainEncoder.encode({:run, ["RETURN {num} AS num", %{num: 5}]}, 3))
     end
 
     test "with params and  metadata" do
@@ -83,7 +84,7 @@ defmodule Bolt.Sips.Internals.PackStream.Message.EncoderV3Test do
                0x75, 0x6D, 0x5, 0xA1, 0x8A, 0x74, 0x78, 0x5F, 0x74, 0x69, 0x6D, 0x65, 0x6F, 0x75,
                0x74, 0xC9, 0x13, 0x88, 0x0,
                0x0>> ==
-               EncoderV3.encode({:run, ["RETURN {num} AS num", %{num: 5}, metadata]}, 3)
+               :erlang.iolist_to_binary(MainEncoder.encode({:run, ["RETURN {num} AS num", %{num: 5}, metadata]}, 3))
     end
   end
 end

@@ -1,9 +1,31 @@
 defmodule Bolt.Sips.Internals.BoltProtoolBoltV2Test do
-  use Bolt.Sips.InternalCase
+  use ExUnit.Case, async: true
   @moduletag :bolt_v2
 
   alias Bolt.Sips.Internals.BoltProtocol
+  setup do
+    app_config = Application.get_env(:bolt_sips, Bolt)
 
+    port = Keyword.get(app_config, :port, 7687)
+    auth = {app_config[:basic_auth][:username], app_config[:basic_auth][:password]}
+
+    config =
+      app_config
+      |> Keyword.put(:port, port)
+      |> Keyword.put(:auth, auth)
+
+    {:ok, port} =
+      :gen_tcp.connect(config[:url], config[:port], active: false, mode: :binary, packet: :raw)
+
+    {:ok, bolt_version} = BoltProtocol.handshake(:gen_tcp, port, [])
+    {:ok, _} = BoltProtocol.hello(:gen_tcp, port, bolt_version, auth)
+
+    on_exit(fn ->
+      :gen_tcp.close(port)
+    end)
+
+    {:ok, config: config, port: port, bolt_version: bolt_version}
+  end
   describe "Temporal types" do
     test "Local date", %{port: port, bolt_version: bolt_version} do
       assert [

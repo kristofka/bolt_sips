@@ -26,6 +26,10 @@ defmodule Bolt.Sips.Internals.PackStream do
     Bolt.Sips.Internals.PackStream.Encoder.encode(item, bolt_version)
   end
 
+  def pre_encoded(item, bolt_version)  do
+    Bolt.Sips.Internals.PackStream.Encoder.pre_encoded(item, bolt_version)
+  end
+
   @doc """
   Decode data from Bolt binary format to Elixir type
 

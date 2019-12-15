@@ -8,7 +8,7 @@ level =
     :debug
   else
     :info
-  end
+ end
 
 config :bolt_sips,
   log: false,
@@ -17,6 +17,7 @@ config :bolt_sips,
 config :logger, :console,
   level: level,
   format: "$date $time [$level] $metadata$message\n"
+
 
 config :tzdata, :autoupdate, :disabled
 
@@ -30,3 +31,4 @@ config :eye_drops,
       paths: ["lib/*", "README.md", "examples/*", "mix.exs"]
     }
   ]
+

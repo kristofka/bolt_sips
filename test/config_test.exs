@@ -55,6 +55,7 @@ defmodule Config.Test do
     config = Utils.default_config(@basic_config)
 
     assert config[:url] == nil
+
     assert config[:hostname] == "hobby"
     assert config[:basic_auth] == [username: "neo4j", password: "neo4j"]
     assert config[:port] == 1234
