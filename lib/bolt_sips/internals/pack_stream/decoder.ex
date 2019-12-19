@@ -151,59 +151,59 @@ defmodule Bolt.Sips.Internals.PackStream.Decoder do
   end
 
   # Lists
-  def decode(<<@tiny_list_marker::4, list_size::4>> <> bin, bolt_version)
+  def decode(<<@tiny_list_marker::4, list_size::4,bin::binary>> , bolt_version)
   when bolt_version <= 3 do
     decode_list(bin, list_size, bolt_version)
   end
 
-  def decode(<<@list8_marker, list_size::8>> <> bin, bolt_version)
+  def decode(<<@list8_marker, list_size::8, bin::binary>> , bolt_version)
   when bolt_version <= 3 do
     decode_list(bin, list_size, bolt_version)
   end
 
-  def decode(<<@list16_marker, list_size::16>> <> bin, bolt_version)
+  def decode(<<@list16_marker, list_size::16, bin::binary>> , bolt_version)
   when bolt_version <= 3 do
     decode_list(bin, list_size, bolt_version)
   end
 
-  def decode(<<@list32_marker, list_size::32>> <> bin, bolt_version)
+  def decode(<<@list32_marker, list_size::32, bin::binary>> , bolt_version)
   when bolt_version <= 3 do
     decode_list(bin, list_size, bolt_version)
   end
 
   # Maps
-  def decode(<<@tiny_map_marker::4, entries::4>> <> bin, bolt_version) 
+  def decode(<<@tiny_map_marker::4, entries::4, bin::binary>>, bolt_version) 
   when bolt_version <= 3 do
     decode_map(bin, entries, bolt_version)
   end
 
-  def decode(<<@map8_marker, entries::8>> <> bin, bolt_version) 
+  def decode(<<@map8_marker, entries::8, bin::binary>>, bolt_version) 
   when bolt_version <= 3 do
     decode_map(bin, entries, bolt_version)
   end
 
-  def decode(<<@map16_marker, entries::16>> <> bin, bolt_version)
+  def decode(<<@map16_marker, entries::16, bin::binary>> , bolt_version)
   when bolt_version <= 3 do
     decode_map(bin, entries, bolt_version)
   end
 
-  def decode(<<@map32_marker, entries::32>> <> bin, bolt_version)
+  def decode(<<@map32_marker, entries::32, bin::binary>> , bolt_version)
   when bolt_version <= 3 do
     decode_map(bin, entries, bolt_version)
   end
 
   # Struct
-  def decode(<<@tiny_struct_marker::4, struct_size::4, sig::8>> <> struct, bolt_version)
+  def decode(<<@tiny_struct_marker::4, struct_size::4, sig::8, struct::binary>> , bolt_version)
   when bolt_version <= 3 do
     decode({sig, struct, struct_size}, bolt_version)
   end
 
-  def decode(<<@struct8_marker, struct_size::8, sig::8>> <> struct, bolt_version)
+  def decode(<<@struct8_marker, struct_size::8, sig::8, struct::binary>> , bolt_version)
   when bolt_version <= 3 do
     decode({sig, struct, struct_size}, bolt_version)
   end
 
-  def decode(<<@struct16_marker, struct_size::16, sig::8>> <> struct, bolt_version)
+  def decode(<<@struct16_marker, struct_size::16, sig::8, struct::binary>> , bolt_version)
   when bolt_version <= 3 do
     decode({sig, struct, struct_size}, bolt_version)
   end
