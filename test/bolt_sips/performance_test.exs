@@ -38,7 +38,7 @@ defmodule Bolt.Sips.PerformanceTest do
 
     long_list = Enum.to_list 1..10_000
     simple_cypher = """
-      CREATE (t:Test {props})
+      CREATE (t:Test $props)
       RETURN t AS test
     """
 

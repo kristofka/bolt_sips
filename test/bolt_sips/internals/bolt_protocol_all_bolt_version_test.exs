@@ -6,7 +6,7 @@ defmodule Bolt.Sips.Internals.BoltProtocolAllBoltVersionTest do
     string = Enum.to_list(0..100) |> Enum.join()
 
     query = """
-      RETURN {string} as string
+      RETURN $string as string
     """
 
     params = %{string: string}
@@ -21,7 +21,7 @@ defmodule Bolt.Sips.Internals.BoltProtocolAllBoltVersionTest do
     string = Enum.to_list(0..25_000) |> Enum.join()
 
     query = """
-      RETURN {string} as string
+      RETURN $string as string
     """
 
     params = %{string: string}

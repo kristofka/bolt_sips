@@ -40,7 +40,7 @@ defmodule Query.Test do
 
     cypher = """
       MATCH (n:Person {bolt_sips: true})
-      WHERE n.name = {name}
+      WHERE n.name = $name
       RETURN n.name AS name
     """
 
@@ -61,7 +61,7 @@ defmodule Query.Test do
     conn = context[:conn]
 
     cypher = """
-      CREATE(n:User {props})
+      CREATE(n:User $props)
     """
 
     assert {:ok,
@@ -82,7 +82,7 @@ defmodule Query.Test do
     conn = context[:conn]
 
     cypher = """
-      CREATE(n:User {props})
+      CREATE(n:User $props)
     """
 
     assert {:ok, %Response{}} =
@@ -94,7 +94,7 @@ defmodule Query.Test do
 
     cypher = """
       MATCH (p:Person {bolt_sips: true})
-      RETURN p, p.name AS name, upper(p.name) as NAME,
+      RETURN p, p.name AS name, toUpper(p.name) as NAME,
              coalesce(p.nickname,"n/a") AS nickname,
              { name: p.name, label:head(labels(p))} AS person
       ORDER BY name DESC
@@ -161,7 +161,7 @@ defmodule Query.Test do
 
   test "return a single number from a statement with params", context do
     conn = context[:conn]
-    row = Bolt.Sips.query!(conn, "RETURN {n} AS num", %{n: 10}) |> Response.first()
+    row = Bolt.Sips.query!(conn, "RETURN $n AS num", %{n: 10}) |> Response.first()
     assert row["num"] == 10
   end
 
@@ -169,7 +169,7 @@ defmodule Query.Test do
     conn = context[:conn]
 
     row =
-      Bolt.Sips.query!(conn, "RETURN {x} AS n", %{x: %{abc: ["d", "e", "f"]}})
+      Bolt.Sips.query!(conn, "RETURN $x AS n", %{x: %{abc: ["d", "e", "f"]}})
       |> Response.first()
 
     assert row["n"]["abc"] == ["d", "e", "f"]
